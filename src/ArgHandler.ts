@@ -1,8 +1,9 @@
 import { Arguments } from './interface/Arguments';
 import { Command } from './interface/Command';
-import { Option } from './interface/Option';
-import { PositionalOption } from './interface/PositionalOption';
+import { TSArgError } from "./TSArgError";
 import ArgConfiguration from './ArgConfiguration';
+import ArgHandlerFactory from "./ArgHandlerFactory";
+
 
 export class ArgHandler {
   private args: Arguments;
@@ -21,8 +22,12 @@ export class ArgHandler {
     return this.instance;
   }
 
-  static initialize(argv: Array<string>): ArgHandler.ArgHandlerFactory {
-    return new ArgHandler.ArgHandlerFactory(argv);
+  static config(argv: Array<string>): ArgHandlerFactory {
+    return new ArgHandlerFactory(argv);
+  }
+
+  static initialize(argv: Array<string>): void {
+    this.instance = new ArgHandler(argv);
   }
 
   private parseArgs(argv: Array<string>): Arguments {
@@ -48,52 +53,4 @@ export class ArgHandler {
     return args;
   }
 
-  static ArgHandlerFactory = class {
-    config: ArgConfiguration;
-    argv: Array<string>;
-
-    constructor(argv: Array<string>) {
-      this.config = ArgConfiguration.getInstance;
-      this.argv = argv;
-    }
-
-    public command(command: Command): ArgHandler.ArgHandlerFactory {
-      this.config.command(command);
-
-      return this;
-    }
-
-    public commands(commands: Array<Command>): ArgHandler.ArgHandlerFactory {
-      commands.forEach((command): void => {
-        this.config.command(command);
-      });
-
-      return this;
-    }
-
-    public globalOption(option: Option): ArgHandler.ArgHandlerFactory {
-      this.config.globalOption(option);
-      return this;
-    }
-
-    public globalOptions(options: Array<Option>): ArgHandler.ArgHandlerFactory {
-      options.forEach((option): void => {
-        this.config.globalOption(option);
-      });
-      return this;
-    }
-
-    public build(): void {
-      ArgHandler.instance = new ArgHandler(this.argv);
-    }
-  };
-
-
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace ArgHandler {
-  export type ArgHandlerFactory = InstanceType<
-    typeof ArgHandler.ArgHandlerFactory
-  >;
 }
