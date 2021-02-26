@@ -1,13 +1,13 @@
 import ArgConfiguration from '../ArgConfiguration';
 import { Arguments } from '../interface/Arguments';
 
+let config: ArgConfiguration;
+
+beforeAll(() => {
+  config = ArgConfiguration.getInstance;
+});
+
 describe('ArgConfiguration test', () => {
-  let config: ArgConfiguration;
-
-  beforeAll(() => {
-    config = ArgConfiguration.getInstance;
-  });
-
   it('returns an object', () => {
     expect(config).toBeDefined();
   });
@@ -20,6 +20,14 @@ describe('ArgConfiguration test', () => {
     expect(Object.is(ArgConfiguration.getInstance, config)).toBe(true);
   });
 
+  it('returns the list of commands', () => {
+    const commandList = config.commandList;
+
+    expect(commandList).toBeInstanceOf(Array);
+  });
+});
+
+describe('command tests', () => {
   it('adds a single command to the configuration', () => {
     config.command({
       name: 'testCommand',
@@ -66,8 +74,8 @@ describe('ArgConfiguration test', () => {
       positionalOptions: [
         {
           name: 'unusedPositional',
-          tokenPos: 3
-        }
+          tokenPos: 3,
+        },
       ],
       handler(args: Arguments) {
         return;
@@ -117,40 +125,41 @@ describe('ArgConfiguration test', () => {
     ).toBe(2);
   });
 
-  it('validates explicit positional options', ()=> {
+  it('validates explicit positional options', () => {
     config.command({
       name: 'commandWithPositional',
       usage: '$0 commandWithPositional <positionalOpt>',
-      positionalOptions: [{
-        name: 'positionalOpt',
-        tokenPos: 2
-      }],
+      positionalOptions: [
+        {
+          name: 'positionalOpt',
+          tokenPos: 2,
+        },
+      ],
       handler(args: Arguments) {
         return;
-      }
+      },
     });
 
     expect(config.getCommand('commandWithPositional')).toBeDefined();
   });
 
   it('throws when invalid positional usage is entered', () => {
-    expect ( () => {
+    expect(() => {
       config.command({
         name: 'commandWithBadPositional',
         usage: '$0 commandWithBadPositional <badPositional>',
         positionalOptions: [
           {
             name: 'badPositional',
-            tokenPos: 3
-          }
+            tokenPos: 3,
+          },
         ],
         handler(args: Arguments) {
           return;
-        }
-      })
+        },
+      });
     }).toThrow();
-
-  })
+  });
 
   it('throws if unlisted command is requested', () => {
     const commandName = 'badCommand';
@@ -158,7 +167,9 @@ describe('ArgConfiguration test', () => {
       config.getCommand(commandName);
     }).toThrow();
   });
+});
 
+describe('option tests', () => {
   it('adds a single global option to the configuration', () => {
     config.globalOption({
       name: 'globalOption1',
@@ -194,11 +205,5 @@ describe('ArgConfiguration test', () => {
     expect(() => {
       config.getGlobalOption(optionName);
     }).toThrow();
-  })
-
-  it('returns the list of commands', () => {
-    const commandList = config.commandList;
-
-    expect(commandList).toBeInstanceOf(Array);
-  })
+  });
 });

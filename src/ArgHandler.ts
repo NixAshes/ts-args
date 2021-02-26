@@ -16,6 +16,8 @@ export class ArgHandler {
     this.config = ArgConfiguration.getInstance;
     this.args = this.parseArgs(argv);
     this.current = this.args.command;
+
+    ArgHandler.instance = this;
   }
 
   static get getInstance(): ArgHandler {
@@ -51,6 +53,10 @@ export class ArgHandler {
     }
 
     return args;
+  }
+
+  static get getConfig(): ArgConfiguration {
+    return this.instance.config;
   }
 
 }
