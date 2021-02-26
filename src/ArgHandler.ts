@@ -21,7 +21,12 @@ export class ArgHandler {
   }
 
   static get getInstance(): ArgHandler {
-    return this.instance;
+    if (this.instance) {
+      return this.instance;
+    }
+    else {
+      throw new TSArgError('ArgHandler is not initialized!');
+    }
   }
 
   static config(argv: Array<string>): ArgHandlerFactory {
@@ -34,6 +39,10 @@ export class ArgHandler {
 
   private parseArgs(argv: Array<string>): Arguments {
     let args: Arguments;
+    // check whether first arg is node
+    if (argv[0] === 'node') {
+      argv = argv.slice(2);
+    }
     // check whether first arg is in command list
     if (!this.config.commandList.includes(argv[0])) {
       throw new TSArgError(`Error: Command ${argv[0]} not found.`);
@@ -57,6 +66,10 @@ export class ArgHandler {
 
   static get getConfig(): ArgConfiguration {
     return this.instance.config;
+  }
+
+  static get getArgs(): Arguments {
+    return this.instance.args;
   }
 
 }
